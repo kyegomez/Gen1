@@ -1,3 +1,6 @@
+[![Multi-Modality](agorabanner.png)](https://discord.gg/qUtxnK2NMf)
+
+
 # Gen1
 My Implementation of " Structure and Content-Guided Video Synthesis with Diffusion Models" by RunwayML
 
