@@ -19,4 +19,28 @@ class AutoEncoder(nn.Module):
         x = nn.Reshape(x, self.dim)
         return x
     
-    
+
+@liquid
+class Midas(nn.Module):
+    x: torch.Tensor
+    dim: int
+
+    def forward(self, x):
+        pass
+
+@liquid
+class Diffusion(nn.Module):
+    x: torch.Tensor
+    dim: int
+
+    def forward(self, x):
+        pass
+
+@liquid
+class Clip(nn.Module):
+    x: torch.Tensor
+    dim: int
+
+    def forward(self, x):
+        pass
+
