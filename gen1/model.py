@@ -4,6 +4,35 @@ from einops import rearrange, reduce, repeat
 from torch import nn
 from shapeless import liquid
 
+#helpers
+def exists(val):
+    return val is not None
+
+
+#utils
+class Residual(nn.Module):
+    def __init__(
+        self,
+        dim,
+        scale_residual=False,
+        scale_residual_constant=1.
+    ):
+        super().__init__()
+        self.residual_scale = nn.Parameter(torch.ones(dim)) if scale_residual else None
+        self.scale_residual_constant = scale_residual_constant
+    
+    def forward(self, x, residual):
+        if exists(self.resiudal_scale):
+            residual = residual * self.residual_scale
+        
+        if self.scale_residual_constant != 1:
+            residual = residual * self.scale_residual_constant
+        
+        return x + residual
+    
+
+#components
+
 @liquid
 class AutoEncoder(nn.Module):
     dim: int
