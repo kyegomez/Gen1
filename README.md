@@ -4,6 +4,11 @@
 # Gen1
 My Implementation of " Structure and Content-Guided Video Synthesis with Diffusion Models" by RunwayML
 
+# Install
+`pip3 install gen1`
+
+## Usage
+- Help us implement it we need help with the Midas, Clip, and modified Unet blocks
 
 
 ## Citation
