@@ -16,7 +16,7 @@ class AutoEncoder(nn.Module):
     in_channels = 3
 
     def forward(self, x):
-        x = nn.Sequential(
+        encoder = nn.Sequential(
             nn.Conv2d(
                 in_channels=self.in_channels, 
                 out_channels=self.out_channels,
@@ -46,10 +46,14 @@ class AutoEncoder(nn.Module):
                 padding=1
             ),
             nn.GroupNorm(self.groups, self.eps),
-            nn.ELU()
+            nn.ELU(),
 
-
+            nn.Flatten(),
+            #fully connected lay
+            nn.Linear(1024, 32),
         )
+        encoded = encoder(x)
+        print(encoded)
     
 
 @liquid
