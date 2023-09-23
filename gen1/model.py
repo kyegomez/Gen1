@@ -29,7 +29,6 @@ class Residual(nn.Module):
 
 #components
 
-# @liquid
 class AutoEncoder(nn.Module):
     def __init__(
         self,
