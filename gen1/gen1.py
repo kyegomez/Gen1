@@ -1,6 +1,7 @@
-from gen1.model import SpaceTimeUnet
 import torch
 from torch import nn
+
+from gen1.model import SpaceTimeUnet
 
 
 class Gen1(nn.Module):
@@ -51,20 +52,20 @@ class Gen1(nn.Module):
             causal_time_attn=self.causal_time_attn
         )    
     
-    def foward_images(self, images):
-        return self.unet(images, )
+    def foward_image(self, image):
+        return self.unet(image, )
     
     def forward_videos(self, videos):
         return self.unet(videos)
     
-    def forward(self, images, videos):
-        images_out = self.unet(images)
-        assert images.shape == images_out.shape
+    def forward(self, image, videos):
+        image_out = self.unet(image)
+        assert image.shape == image_out.shape
 
         #videos
         video_out = self.unet(videos)
         assert videos.shape == video_out.shape
 
 
-        
+
 
