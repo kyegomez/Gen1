@@ -524,7 +524,6 @@ class MidasHF:
     def __init__(
         self,
         model_name_or_path: str = 'Intel/dpt-hybrid-midas',
-        image: str = None
     ):
         self.model_name_or_path = model_name_or_path
         self.model = DPTForDepthPrediction.from_pretrained(
@@ -535,9 +534,10 @@ class MidasHF:
             self.model_name_or_path
         )
 
-        self.image = Image.open(requests.get(image, stream=True).raw)
     
-    def forward(self):
+    def forward(self, image):
+        image = Image.open(requests.get(image, stream=True).raw)
+
         inputs = self.feature_extractor(
             images=self.images,
             return_tensors="pt"
