@@ -554,6 +554,8 @@ class MidasHF:
                 mode="bicubic",
                 align_corners=False
             )
+            return prediction
+        
         
 
 

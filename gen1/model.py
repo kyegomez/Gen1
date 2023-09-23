@@ -88,9 +88,5 @@ class AutoEncoder(nn.Module):
             #fully connected lay
             nn.Linear(1024, 32),
         )
-        encoded = encoder(x)
+        encoded = encoder(self.x)
         print(encoded)
-
-x = torch.randn(1, 3, 224, 224)
-model = AutoEncoder(x=x, dim=3, out_channels=128, stride=1, padding=1, groups=32, eps=1e-5, in_channels=3)
-print(model)
