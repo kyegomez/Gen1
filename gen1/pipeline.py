@@ -11,7 +11,7 @@ class Pipeline(nn.Module):
         self.clip = CLIP()
         
     def forward(self, image):
-        image = self.midas.forward(image)
-        image_embeddings = self.clip.run(image)
+        image_out = self.midas.forward(image)
+        image_embeddings = self.clip.run(image_out)
         return image_embeddings
     
