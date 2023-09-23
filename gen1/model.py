@@ -1,8 +1,5 @@
 import torch 
-import einops
-from einops import rearrange, reduce, repeat
 from torch import nn
-from shapeless import liquid
 
 #helpers
 def exists(val):
@@ -97,26 +94,3 @@ class AutoEncoder(nn.Module):
 x = torch.randn(1, 3, 224, 224)
 model = AutoEncoder(x=x, dim=3, out_channels=128, stride=1, padding=1, groups=32, eps=1e-5, in_channels=3)
 print(model)
-
-
-class Midas:
-    def __init__(
-        self,
-        path=None,
-        features=256,
-        non_negative=True
-    ):
-        """
-        Args:
-            
-            path(str, optional): Path to saved model defaults to None
-            features(int, optional): Number of features, defauts to 256
-            backbone(str, optional): Backbone network for encoder
-
-        """
-        print("loadding weightsss:", path)
-        super(Midas, self).__init__()
-        
-        use_pretrained = False if path is None else True
-
-        self.pretrained, self.scratch = _make_encoder_
