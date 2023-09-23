@@ -33,17 +33,28 @@ class Residual(nn.Module):
 
 #components
 
-@liquid
+# @liquid
 class AutoEncoder(nn.Module):
-    dim: int
-    x: torch.Tensor
-    out_channels: int = 128
-    stide: int
-    padding: int
-    groups: int  = 32
-    eps = 1e-5
-    in_channels = 3
-
+    def __init__(
+        self,
+        dim: int,
+        x: torch.Tensor,
+        out_channels: int = 128,
+        stride: int = None,
+        padding: int = None,
+        groups: int = 32,
+        eps = 1e-5,
+        in_channels = 3,
+    ):
+        self.dim = dim
+        self.x = x
+        self.out_channels = out_channels
+        self.stride = stride
+        self.padding = padding
+        self.groups = groups
+        self.eps = eps
+        self.in_channels = in_channels
+    
     def forward(self, x):
         encoder = nn.Sequential(
             nn.Conv2d(
@@ -83,29 +94,32 @@ class AutoEncoder(nn.Module):
         )
         encoded = encoder(x)
         print(encoded)
-    
 
-@liquid
-class Midas(nn.Module):
-    x: torch.Tensor
-    dim: int
+x = torch.randn(1, 3, 224, 224)
+model = AutoEncoder(x=x, dim=3, out_channels=128, stride=1, padding=1, groups=32, eps=1e-5, in_channels=3)
+print(model)
 
-    def forward(self, x):
-        pass
+# @liquid
+# class Midas(nn.Module):
+#     x: torch.Tensor
+#     dim: int
 
-@liquid
-class Diffusion(nn.Module):
-    x: torch.Tensor
-    dim: int
+#     def forward(self, x):
+#         pass
 
-    def forward(self, x):
-        pass
+# @liquid
+# class Diffusion(nn.Module):
+#     x: torch.Tensor
+#     dim: int
 
-@liquid
-class Clip(nn.Module):
-    x: torch.Tensor
-    dim: int
+#     def forward(self, x):
+#         pass
 
-    def forward(self, x):
-        pass
+# @liquid
+# class Clip(nn.Module):
+#     x: torch.Tensor
+#     dim: int
+
+#     def forward(self, x):
+#         pass
 
