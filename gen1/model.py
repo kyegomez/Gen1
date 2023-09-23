@@ -8,7 +8,6 @@ from shapeless import liquid
 def exists(val):
     return val is not None
 
-
 #utils
 class Residual(nn.Module):
     def __init__(
@@ -55,7 +54,7 @@ class AutoEncoder(nn.Module):
         self.eps = eps
         self.in_channels = in_channels
     
-    def forward(self, x):
+    def forward(self):
         encoder = nn.Sequential(
             nn.Conv2d(
                 in_channels=self.in_channels, 
@@ -99,27 +98,25 @@ x = torch.randn(1, 3, 224, 224)
 model = AutoEncoder(x=x, dim=3, out_channels=128, stride=1, padding=1, groups=32, eps=1e-5, in_channels=3)
 print(model)
 
-# @liquid
-# class Midas(nn.Module):
-#     x: torch.Tensor
-#     dim: int
 
-#     def forward(self, x):
-#         pass
+class Midas:
+    def __init__(
+        self,
+        path=None,
+        features=256,
+        non_negative=True
+    ):
+        """
+        Args:
+            
+            path(str, optional): Path to saved model defaults to None
+            features(int, optional): Number of features, defauts to 256
+            backbone(str, optional): Backbone network for encoder
 
-# @liquid
-# class Diffusion(nn.Module):
-#     x: torch.Tensor
-#     dim: int
+        """
+        print("loadding weightsss:", path)
+        super(Midas, self).__init__()
+        
+        use_pretrained = False if path is None else True
 
-#     def forward(self, x):
-#         pass
-
-# @liquid
-# class Clip(nn.Module):
-#     x: torch.Tensor
-#     dim: int
-
-#     def forward(self, x):
-#         pass
-
+        self.pretrained, self.scratch = _make_encoder_
