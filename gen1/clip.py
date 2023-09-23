@@ -10,7 +10,6 @@ class CLIP:
     def __init__(
         self,
     ):
-
         self.model, _, self.preprocess = open_clip.create_model_and_transformes(
             "ViT-B-32",
             pretrained="laion2b_s34b_b79k"
@@ -20,7 +19,7 @@ class CLIP:
     def run(self, text, image):
         image = self.preprocess(Image.open(image)).unsqueeze(0)
         tokenizer = self.tokenizer([text])
-        
+
         with torch.no_grad(), torch.cuda.amp.autocast:
             image_features = self.model.encode_image(image)
             text_features = self.model.encode_text(text)

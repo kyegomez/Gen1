@@ -1,6 +1,6 @@
 from torch import nn
 from gen1.midas import MidasHF
-
+from gen1.clip import CLIP
 
 class Pipeline(nn.Module):
     def __init__(
@@ -12,7 +12,10 @@ class Pipeline(nn.Module):
         self.video = video
 
         self.midas = MidasHF()
-    
-    def run(self):
+        self.clip = CLIP()
+        
+    def forward(self):
         image = self.midas.forward(self.image)
-        image = 
+        image_embeddings = self.clip.run(image)
+        return image_embeddings
+    
