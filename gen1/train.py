@@ -6,8 +6,6 @@ from functools import partial
 from itertools import chain
 
 import torch
-
-########### SETUP CONFIG
 import torch.distributed as dist
 from accelerate import Accelerator
 from accelerate.logging import get_logger
@@ -20,8 +18,6 @@ from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import (
     apply_activation_checkpointing,
     checkpoint_wrapper,
 )
-
-# import bitsandbytes as bnb
 from torch.distributed.fsdp import (
     BackwardPrefetch,
     FullyShardedDataParallel,
@@ -41,11 +37,8 @@ from transformers import (
     set_seed,
 )
 
-from gen1.model import Gen1
-from gen1.model import SpaceTimeUnet
 from gen1.adam import StableAdamWUnfused
-
-
+from gen1.model import Gen1, SpaceTimeUnet
 
 # state = AcceleratorState()
 
@@ -494,7 +487,7 @@ def Train():
 
     set_seed(CFG.SEED)
 
-    model = gen11Billion()
+    model = Gen1()
 
     print_num_params(model, accelerator)
 
