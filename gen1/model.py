@@ -8,7 +8,7 @@ from einops import pack, rearrange, repeat, unpack
 from einops.layers.torch import Rearrange
 from torch import einsum, nn
 
-from gen1.model import Attend
+from gen1.attend import Attend
 
 # helper functions
 
@@ -183,7 +183,7 @@ class Attention(nn.Module):
         dim,
         dim_head = 64,
         heads = 8,
-        flash = True,
+        flash = False,
         causal = False
     ):
         super().__init__()
@@ -233,8 +233,20 @@ class PseudoConv3d(nn.Module):
         dim_out = default(dim_out, dim)
         temporal_kernel_size = default(temporal_kernel_size, kernel_size)
 
-        self.spatial_conv = nn.Conv2d(dim, dim_out, kernel_size = kernel_size, padding = kernel_size // 2)
-        self.temporal_conv = nn.Conv1d(dim_out, dim_out, kernel_size = temporal_kernel_size, padding = temporal_kernel_size // 2) if kernel_size > 1 else None
+        self.spatial_conv = nn.Conv2d(
+            dim, 
+            dim_out, 
+            kernel_size = kernel_size, 
+            padding = kernel_size // 2
+        )
+
+        self.temporal_conv = nn.Conv1d(
+            dim_out, 
+            dim_out, 
+            kernel_size = 
+            temporal_kernel_size, 
+            padding = temporal_kernel_size // 2
+        ) if kernel_size > 1 else None
 
         if exists(self.temporal_conv):
             nn.init.dirac_(self.temporal_conv.weight.data) # initialized to be identity
@@ -287,11 +299,32 @@ class SpatioTemporalAttention(nn.Module):
         super().__init__()
         assert not (flash and pos_bias), 'learned positional attention bias is not compatible with flash attention'
 
-        self.spatial_attn = Attention(dim = dim, dim_head = dim_head, heads = heads, flash = flash)
-        self.spatial_rel_pos_bias = ContinuousPositionBias(dim = dim // 2, heads = heads, num_dims = 2) if pos_bias else None
+        self.spatial_attn = Attention(
+            dim = dim, 
+            dim_head = dim_head, 
+            heads = heads, 
+            flash = flash
+        )
 
-        self.temporal_attn = Attention(dim = dim, dim_head = dim_head, heads = heads, flash = flash, causal = causal_time_attn)
-        self.temporal_rel_pos_bias = ContinuousPositionBias(dim = dim // 2, heads = heads, num_dims = 1) if pos_bias else None
+        self.spatial_rel_pos_bias = ContinuousPositionBias(
+            dim = dim // 2, 
+            heads = heads, 
+            num_dims = 2
+        ) if pos_bias else None
+
+        self.temporal_attn = Attention(
+            dim = dim, 
+            dim_head = dim_head, 
+            heads = heads, 
+            flash = flash, 
+            causal = causal_time_attn
+        )
+
+        self.temporal_rel_pos_bias = ContinuousPositionBias(
+            dim = dim // 2, 
+            heads = heads, 
+            num_dims = 1
+        ) if pos_bias else None
 
         self.has_feed_forward = add_feed_forward
         if not add_feed_forward:
@@ -313,7 +346,9 @@ class SpatioTemporalAttention(nn.Module):
         else:
             x = rearrange(x, 'b c h w -> b (h w) c')
 
-        space_rel_pos_bias = self.spatial_rel_pos_bias(h, w) if exists(self.spatial_rel_pos_bias) else None
+        space_rel_pos_bias = self.spatial_rel_pos_bias(h, w) if exists(
+            self.spatial_rel_pos_bias
+        ) else None
 
         x = self.spatial_attn(x, rel_pos_bias = space_rel_pos_bias) + x
 
@@ -326,7 +361,9 @@ class SpatioTemporalAttention(nn.Module):
 
             x = rearrange(x, 'b c f h w -> (b h w) f c')
 
-            time_rel_pos_bias = self.temporal_rel_pos_bias(x.shape[1]) if exists(self.temporal_rel_pos_bias) else None
+            time_rel_pos_bias = self.temporal_rel_pos_bias(x.shape[1]) if exists(
+                self.temporal_rel_pos_bias
+            ) else None
 
             x = self.temporal_attn(x, rel_pos_bias = time_rel_pos_bias) + x
 
@@ -389,7 +426,11 @@ class ResnetBlock(nn.Module):
 
         self.block1 = Block(dim, dim_out, groups = groups)
         self.block2 = Block(dim_out, dim_out, groups = groups)
-        self.res_conv = PseudoConv3d(dim, dim_out, 1) if dim != dim_out else nn.Identity()
+        self.res_conv = PseudoConv3d(
+            dim, 
+            dim_out, 
+            1
+        ) if dim != dim_out else nn.Identity()
 
     def forward(
         self,
@@ -588,32 +629,72 @@ class SpaceTimeUnet(nn.Module):
 
         mid_dim = dims[-1]
 
-        self.mid_block1 = ResnetBlock(mid_dim, mid_dim, timestep_cond_dim = timestep_cond_dim)
-        self.mid_attn = SpatioTemporalAttention(dim = mid_dim, **attn_kwargs)
-        self.mid_block2 = ResnetBlock(mid_dim, mid_dim, timestep_cond_dim = timestep_cond_dim)
+        self.mid_block1 = ResnetBlock(
+            mid_dim, 
+            mid_dim, 
+            timestep_cond_dim = timestep_cond_dim
+        )
 
-        for _, self_attend, (dim_in, dim_out), compress_time, resnet_block_depth in zip(range(num_layers), self_attns, dim_in_out, temporal_compression, resnet_block_depths):
+        self.mid_attn = SpatioTemporalAttention(dim = mid_dim, **attn_kwargs)
+        self.mid_block2 = ResnetBlock(
+            mid_dim, 
+            mid_dim, 
+            timestep_cond_dim = timestep_cond_dim
+        )
+
+        for _, self_attend, (dim_in, dim_out), compress_time, resnet_block_depth in zip(
+                range(
+                    num_layers
+                ), self_attns, dim_in_out, temporal_compression, resnet_block_depths
+            ):
             assert resnet_block_depth >= 1
 
             self.downs.append(mlist([
                 ResnetBlock(dim_in, dim_out, timestep_cond_dim = timestep_cond_dim),
-                mlist([ResnetBlock(dim_out, dim_out) for _ in range(resnet_block_depth)]),
-                SpatioTemporalAttention(dim = dim_out, **attn_kwargs) if self_attend else None,
+                mlist([ResnetBlock(
+                    dim_out, 
+                    dim_out
+                ) for _ in range(resnet_block_depth)]),
+
+                SpatioTemporalAttention(
+                    dim = dim_out, 
+                    **attn_kwargs
+                ) if self_attend else None,
+
                 Downsample(dim_out, downsample_time = compress_time)
             ]))
 
             self.ups.append(mlist([
                 ResnetBlock(dim_out * 2, dim_in, timestep_cond_dim = timestep_cond_dim),
-                mlist([ResnetBlock(dim_in + (dim_out if ind == 0 else 0), dim_in) for ind in range(resnet_block_depth)]),
-                SpatioTemporalAttention(dim = dim_in, **attn_kwargs) if self_attend else None,
+                
+                mlist([ResnetBlock(dim_in + (
+                    dim_out if ind == 0 else 0
+                ), dim_in) for ind in range(resnet_block_depth)]),
+
+                SpatioTemporalAttention(
+                    dim = dim_in, 
+                    **attn_kwargs
+                ) if self_attend else None,
+
                 Upsample(dim_out, upsample_time = compress_time)
                 
             ]))
 
         self.skip_scale = 2 ** -0.5 # paper shows faster convergence
 
-        self.conv_in = PseudoConv3d(dim = channels, dim_out = dim, kernel_size = 7, temporal_kernel_size = 3)
-        self.conv_out = PseudoConv3d(dim = dim, dim_out = channels, kernel_size = 3, temporal_kernel_size = 3)
+        self.conv_in = PseudoConv3d(
+            dim = channels, 
+            dim_out = dim, 
+            kernel_size = 7, 
+            temporal_kernel_size = 3
+        )
+
+        self.conv_out = PseudoConv3d(
+            dim = dim, 
+            dim_out = channels, 
+            kernel_size = 3, 
+            temporal_kernel_size = 3
+        )
 
     def forward(
         self,
@@ -629,14 +710,22 @@ class SpaceTimeUnet(nn.Module):
 
         if enable_time and is_video:
             frames = x.shape[2]
-            assert divisible_by(frames, self.frame_multiple), f'number of frames on the video ({frames}) must be divisible by the frame multiple ({self.frame_multiple})'
+            assert divisible_by(
+                frames, 
+                self.frame_multiple
+            ), f'number of frames on the video ({frames}) must be divisible by the frame multiple ({self.frame_multiple})'
 
         height, width = x.shape[-2:]
-        assert divisible_by(height, self.image_size_multiple) and divisible_by(width, self.image_size_multiple), f'height and width of the image or video must be a multiple of {self.image_size_multiple}'
+        assert divisible_by(height, self.image_size_multiple) and divisible_by(
+            width, 
+            self.image_size_multiple
+        ), f'height and width of the image or video must be a multiple of {self.image_size_multiple}'
 
         # main logic
 
-        t = self.to_timestep_cond(rearrange(timestep, '... -> (...)')) if exists(timestep) else None
+        t = self.to_timestep_cond(
+            rearrange(timestep, '... -> (...)')
+        ) if exists(timestep) else None
 
         x = self.conv_in(x, enable_time = enable_time)
 
@@ -678,3 +767,69 @@ class SpaceTimeUnet(nn.Module):
 
         x = self.conv_out(x, enable_time = enable_time)
         return x
+    
+
+
+#model
+class Gen1(nn.Module):
+    def __init__(
+        self,
+        *,
+        dim,
+        channels = 3,
+        dim_mult = (1, 2, 4, 8),
+        self_attns = (False, False, False, True),
+        temporal_compression = (False, True, True, True),
+        resnet_block_depths = (2, 2, 2, 2),
+        attn_dim_head = 64,
+        attn_heads = 8,
+        condition_on_timestep = True,
+        attn_pos_bias = True,
+        flash_attn = False,
+        causal_time_attn = False
+    ):
+        
+        super().__init__()
+
+        self.dim = dim
+        self.channels = channels
+        self.dim_mult = dim_mult
+        self.self_attns = self_attns
+        self.temporal_compression = temporal_compression
+        self.resnet_block_depths = resnet_block_depths
+        self.attn_dim_head = attn_dim_head
+        self.attn_heads = attn_heads
+        self.condition_on_timestep = condition_on_timestep
+        self.attn_pos_bias = attn_pos_bias
+        self.flash_attn = flash_attn
+        self.causal_time_attn = causal_time_attn
+
+        self.unet = SpaceTimeUnet(
+            dim=self.dim,
+            channels=self.channels,
+            dim_mult=self.dim_mult,
+            self_attns=self.self_attns,
+            temporal_compression=self.temporal_compression,
+            resnet_block_depths=self.resnet_block_depths,
+            attn_dim_head=self.attn_dim_head,
+            attn_heads=self.attn_heads,
+            condition_on_timestep=self.condition_on_timestep,
+            attn_pos_bias=self.attn_pos_bias,
+            flash_attn=self.flash_attn,
+            causal_time_attn=self.causal_time_attn
+        )    
+    
+    def forward_image(self, image):
+        return self.unet(image, )
+    
+    def forward_videos(self, videos):
+        return self.unet(videos)
+    
+    def forward(self, image, videos):
+        image_out = self.unet(image)
+        assert image.shape == image_out.shape
+
+        #videos
+        video_out = self.unet(videos)
+        assert videos.shape == video_out.shape
+
