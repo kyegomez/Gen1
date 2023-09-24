@@ -3,7 +3,6 @@ from functools import wraps
 
 import torch
 import torch.nn.functional as F
-from einops import rearrange
 from packaging import version
 from torch import einsum, nn
 
@@ -103,7 +102,7 @@ class Attend(nn.Module):
 
         # similarity
 
-        sim = einsum(f"b h i d, b h j d -> b h i j", q, k) * scale
+        sim = einsum("b h i d, b h j d -> b h i j", q, k) * scale
 
         # attn bias
 
@@ -124,6 +123,6 @@ class Attend(nn.Module):
 
         # aggregate values
 
-        out = einsum(f"b h i j, b h j d -> b h i d", attn, v)
+        out = einsum("b h i j, b h j d -> b h i d", attn, v)
 
         return out

@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 from einops import pack, rearrange, repeat, unpack
 from einops.layers.torch import Rearrange
-from torch import einsum, nn
+from torch import nn
 
 from gen1.attend import Attend
 

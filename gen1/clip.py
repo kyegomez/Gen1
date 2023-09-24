@@ -1,8 +1,6 @@
 import open_clip
-import requests
 import torch
 from PIL import Image
-from transformers import CLIPModel, CLIPProcessor
 
 
 class CLIP:
@@ -17,7 +15,7 @@ class CLIP:
     
     def run(self, text, image):
         image = self.preprocess(Image.open(image)).unsqueeze(0)
-        tokenizer = self.tokenizer([text])
+        self.tokenizer([text])
 
         with torch.no_grad(), torch.cuda.amp.autocast:
             image_features = self.model.encode_image(image)
