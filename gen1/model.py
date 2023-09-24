@@ -775,18 +775,15 @@ class Gen1(nn.Module):
     def __init__(
         self,
         *,
-        dim,
+        dim = 64,
         channels = 3,
         dim_mult = (1, 2, 4, 8),
+        resnet_block_depths = (1, 1, 1, 2),
+        temporal_compression = (False, False, False, True),
         self_attns = (False, False, False, True),
-        temporal_compression = (False, True, True, True),
-        resnet_block_depths = (2, 2, 2, 2),
-        attn_dim_head = 64,
-        attn_heads = 8,
-        condition_on_timestep = True,
-        attn_pos_bias = True,
-        flash_attn = False,
-        causal_time_attn = False
+        condition_on_timestep = False,
+        attn_pos_bias = False,
+        flash_attn = True
     ):
         
         super().__init__()
@@ -810,19 +807,21 @@ class Gen1(nn.Module):
             self_attns = self_attns,
             temporal_compression = temporal_compression,
             resnet_block_depths = resnet_block_depths,
-            attn_dim_head = attn_dim_head,
-            attn_heads = attn_heads,
+            # attn_dim_head = attn_dim_head,
+            # attn_heads = attn_heads,
             condition_on_timestep = condition_on_timestep,
             attn_pos_bias = attn_pos_bias,
             flash_attn = flash_attn,
-            causal_time_attn = causal_time_attn
+            # causal_time_attn = causal_time_attn
         )
 
-    def forward(self, image):
+    def forward(self, image, videos):
         image_out = self.unet(image)
+        print(image_out)
         assert image.shape == image_out.shape
 
-        # #videos
-        # video_out = self.unet(videos)
-        # assert videos.shape == video_out.shape
+        #videos
+        video_out = self.unet(videos)
+        print(video_out)
+        assert videos.shape == video_out.shape
 
