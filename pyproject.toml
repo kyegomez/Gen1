@@ -16,7 +16,7 @@ classifiers = [
 python = "^3.8"
 torch = "*"
 einops = "*"
-shapeless = "*"
+transformers = "*"
 
 
 [build-system]
