@@ -1,9 +1,8 @@
+import open_clip
+import requests
 import torch
 from PIL import Image
-import requests
-from transformers import CLIPProcessor, CLIPModel
-
-import open_clip
+from transformers import CLIPModel, CLIPProcessor
 
 
 class CLIP:

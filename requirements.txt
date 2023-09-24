@@ -1,0 +1,4 @@
+torch
+einops
+transformers
+open_clip_torch

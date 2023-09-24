@@ -1,6 +1,8 @@
 from torch import nn
-from gen1.midas import MidasHF
+
 from gen1.clip import CLIP
+from gen1.midas import MidasHF
+
 
 class Pipeline(nn.Module):
     def __init__(

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gen1"
-version = "0.0.1"
+version = "0.0.2"
 description = "Text to Video synthesis"
 authors = ["Gen1 <kye@apac.ai>"]
 license = "MIT"
@@ -17,6 +17,8 @@ python = "^3.8"
 torch = "*"
 einops = "*"
 transformers = "*"
+open_clip_torch = "*"
+
 
 
 [build-system]
