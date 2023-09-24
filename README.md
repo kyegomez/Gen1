@@ -20,7 +20,6 @@ image => midas => clip => spacetime unet => diffusion
 import torch
 from gen1.model import Gen1
 
-
 model = Gen1()
 
 images = torch.randn(1, 3, 128, 128)
@@ -28,11 +27,18 @@ video = torch.randn(1, 3, 16, 128, 128)
 
 run_out = model.forward(images, video)
 
-
 ```
 
-## Usage
-- Help us implement it we need help with the Midas, Clip, and modified Unet blocks
+## Datasets
+Here is a summary table of the datasets used in the Structure and Content-Guided Video Synthesis with Diffusion Models paper:
+
+| Dataset | Type | Size | Domain | Description | Source |
+|-|-|-|-|-|-|
+| Internal dataset | Images | 240M | General | Uncaptioned images | Private |  
+| Custom video dataset | Videos | 6.4M clips | General | Uncaptioned short video clips | Private |
+| DAVIS | Videos | - | General | Video object segmentation | [Link](https://davischallenge.org/) |
+| Stock footage | Videos | - | General | Diverse video clips | - |
+
 
 
 ## Citation
