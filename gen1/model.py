@@ -794,42 +794,35 @@ class Gen1(nn.Module):
         self.dim = dim
         self.channels = channels
         self.dim_mult = dim_mult
+
         self.self_attns = self_attns
         self.temporal_compression = temporal_compression
         self.resnet_block_depths = resnet_block_depths
-        self.attn_dim_head = attn_dim_head
-        self.attn_heads = attn_heads
+
         self.condition_on_timestep = condition_on_timestep
         self.attn_pos_bias = attn_pos_bias
         self.flash_attn = flash_attn
-        self.causal_time_attn = causal_time_attn
 
         self.unet = SpaceTimeUnet(
-            dim=self.dim,
-            channels=self.channels,
-            dim_mult=self.dim_mult,
-            self_attns=self.self_attns,
-            temporal_compression=self.temporal_compression,
-            resnet_block_depths=self.resnet_block_depths,
-            attn_dim_head=self.attn_dim_head,
-            attn_heads=self.attn_heads,
-            condition_on_timestep=self.condition_on_timestep,
-            attn_pos_bias=self.attn_pos_bias,
-            flash_attn=self.flash_attn,
-            causal_time_attn=self.causal_time_attn
-        )    
-    
-    def forward_image(self, image):
-        return self.unet(image, )
-    
-    def forward_videos(self, videos):
-        return self.unet(videos)
-    
-    def forward(self, image, videos):
+            dim = dim,
+            channels = channels,
+            dim_mult = dim_mult,
+            self_attns = self_attns,
+            temporal_compression = temporal_compression,
+            resnet_block_depths = resnet_block_depths,
+            attn_dim_head = attn_dim_head,
+            attn_heads = attn_heads,
+            condition_on_timestep = condition_on_timestep,
+            attn_pos_bias = attn_pos_bias,
+            flash_attn = flash_attn,
+            causal_time_attn = causal_time_attn
+        )
+
+    def forward(self, image):
         image_out = self.unet(image)
         assert image.shape == image_out.shape
 
-        #videos
-        video_out = self.unet(videos)
-        assert videos.shape == video_out.shape
+        # #videos
+        # video_out = self.unet(videos)
+        # assert videos.shape == video_out.shape
 
