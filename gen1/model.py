@@ -456,7 +456,6 @@ class ResnetBlock(nn.Module):
 
 # pixelshuffle upsamples and downsamples
 # where time dimension can be configured
-
 class Downsample(nn.Module):
     def __init__(
         self,
@@ -572,7 +571,6 @@ class Upsample(nn.Module):
         return x
 
 # space time factorized 3d unet
-
 class SpaceTimeUnet(nn.Module):
     def __init__(
         self,
@@ -591,7 +589,10 @@ class SpaceTimeUnet(nn.Module):
         causal_time_attn = False
     ):
         super().__init__()
-        assert len(dim_mult) == len(self_attns) == len(temporal_compression) == len(resnet_block_depths)
+        assert len(
+            dim_mult
+        ) == len(self_attns) == len(temporal_compression) == len(resnet_block_depths)
+        
         num_layers = len(dim_mult)
 
         dims = [dim, *map(lambda mult: mult * dim, dim_mult)]
