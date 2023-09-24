@@ -375,7 +375,6 @@ class SpatioTemporalAttention(nn.Module):
         return x
 
 # resnet block
-
 class Block(nn.Module):
     def __init__(
         self,
@@ -592,7 +591,7 @@ class SpaceTimeUnet(nn.Module):
         assert len(
             dim_mult
         ) == len(self_attns) == len(temporal_compression) == len(resnet_block_depths)
-        
+
         num_layers = len(dim_mult)
 
         dims = [dim, *map(lambda mult: mult * dim, dim_mult)]
