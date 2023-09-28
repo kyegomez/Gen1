@@ -815,7 +815,11 @@ class Gen1(nn.Module):
             # causal_time_attn = causal_time_attn
         )
 
-    def forward(self, image, videos):
+    def forward(
+            self, 
+            image, 
+            videos
+        ):
         image_out = self.unet(image)
         print(image_out)
         assert image.shape == image_out.shape

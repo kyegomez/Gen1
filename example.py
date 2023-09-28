@@ -8,4 +8,3 @@ images = torch.randn(1, 3, 128, 128)
 video = torch.randn(1, 3, 16, 128, 128)
 
 run_out = model.forward(images, video)
-
