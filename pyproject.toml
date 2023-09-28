@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gen1"
-version = "0.0.2"
+version = "0.0.4"
 description = "Text to Video synthesis"
 authors = ["Gen1 <kye@apac.ai>"]
 license = "MIT"
