@@ -8,15 +8,20 @@ from torch import einsum, nn
 
 # constants
 
-AttentionConfig = namedtuple('AttentionConfig', ['enable_flash', 'enable_math', 'enable_mem_efficient'])
+AttentionConfig = namedtuple(
+    "AttentionConfig", ["enable_flash", "enable_math", "enable_mem_efficient"]
+)
 
 # helpers
+
 
 def exists(val):
     return val is not None
 
+
 def once(fn):
     called = False
+
     @wraps(fn)
     def inner(x):
         nonlocal called
@@ -24,19 +29,17 @@ def once(fn):
             return
         called = True
         return fn(x)
+
     return inner
+
 
 print_once = once(print)
 
 # main class
 
+
 class Attend(nn.Module):
-    def __init__(
-        self,
-        dropout = 0.,
-        flash = False,
-        causal = False
-    ):
+    def __init__(self, dropout=0.0, flash=False, causal=False):
         super().__init__()
         self.dropout = dropout
         self.attn_dropout = nn.Dropout(dropout)
@@ -44,7 +47,9 @@ class Attend(nn.Module):
         self.causal = causal
 
         self.flash = flash
-        assert not (flash and version.parse(torch.__version__) < version.parse('2.0.0')), 'in order to use flash attention, you must be using pytorch 2.0 or above'
+        assert not (
+            flash and version.parse(torch.__version__) < version.parse("2.0.0")
+        ), "in order to use flash attention, you must be using pytorch 2.0 or above"
 
         # determine efficient attention configs for cuda and cpu
 
@@ -54,13 +59,17 @@ class Attend(nn.Module):
         if not torch.cuda.is_available() or not flash:
             return
 
-        device_properties = torch.cuda.get_device_properties(torch.device('cuda'))
+        device_properties = torch.cuda.get_device_properties(torch.device("cuda"))
 
         if device_properties.major == 8 and device_properties.minor == 0:
-            print_once('A100 GPU detected, using flash attention if input tensor is on cuda')
+            print_once(
+                "A100 GPU detected, using flash attention if input tensor is on cuda"
+            )
             self.cuda_config = AttentionConfig(True, False, False)
         else:
-            print_once('Non-A100 GPU detected, using math or mem efficient attention if input tensor is on cuda')
+            print_once(
+                "Non-A100 GPU detected, using math or mem efficient attention if input tensor is on cuda"
+            )
             self.cuda_config = AttentionConfig(False, True, True)
 
     def flash_attn(self, q, k, v):
@@ -76,14 +85,16 @@ class Attend(nn.Module):
 
         with torch.backends.cuda.sdp_kernel(**config._asdict()):
             out = F.scaled_dot_product_attention(
-                q, k, v,
-                dropout_p = self.dropout if self.training else 0.,
-                is_causal = self.causal
+                q,
+                k,
+                v,
+                dropout_p=self.dropout if self.training else 0.0,
+                is_causal=self.causal,
             )
 
         return out
 
-    def forward(self, q, k, v, bias = None):
+    def forward(self, q, k, v, bias=None):
         """
         einstein notation
         b - batch
@@ -113,12 +124,14 @@ class Attend(nn.Module):
 
         if self.causal:
             i, j = sim.shape[-2:]
-            causal_mask = torch.ones((i, j), dtype = torch.bool, device = device).triu(j - i + 1)
+            causal_mask = torch.ones((i, j), dtype=torch.bool, device=device).triu(
+                j - i + 1
+            )
             sim = sim.masked_fill(causal_mask, -torch.finfo(sim.dtype).max)
 
         # attention
 
-        attn = sim.softmax(dim = -1)
+        attn = sim.softmax(dim=-1)
         attn = self.attn_dropout(attn)
 
         # aggregate values
