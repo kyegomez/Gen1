@@ -5,12 +5,6 @@
 My Implementation of " Structure and Content-Guided Video Synthesis with Diffusion Models" by RunwayML
 
 
-The flow:
-
-```
-image => midas => clip => spacetime unet => diffusion
-```
-
 
 # Install
 `pip3 install gen1`
@@ -49,3 +43,9 @@ Title = {Structure and Content-Guided Video Synthesis with Diffusion Models},
 Year = {2023},
 Eprint = {arXiv:2302.03011},
 ```
+
+
+# Todo
+- [ ] Add training script
+- [ ] Add in conditional text paramater to pass in text, not just images and or other videos
+- [ ] 

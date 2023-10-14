@@ -736,6 +736,46 @@ class SpaceTimeUnet(nn.Module):
 
 # model
 class Gen1(nn.Module):
+    """
+    Gen1 model
+
+    Args:
+    ======
+    dim: int
+        dimension of the model
+    channels: int
+        number of channels of the input image
+    dim_mult: tuple
+        tuple of integers that determine the dimension of each layer
+    resnet_block_depths: tuple
+        tuple of integers that determine the number of resnet blocks in each layer
+    temporal_compression: tuple
+        tuple of booleans that determine whether to compress the time dimension in each layer
+    self_attns: tuple
+        tuple of booleans that determine whether to use self attention in each layer
+    condition_on_timestep: bool
+        whether to condition on the timestep
+    attn_pos_bias: bool
+        whether to use a learned positional bias for the attention
+    flash_attn: bool
+        whether to use flash attention
+    
+        
+    Usage:
+    ======
+    import torch
+    from gen1.model import Gen1
+
+
+    model = Gen1()
+
+    images = torch.randn(1, 3, 128, 128)
+    video = torch.randn(1, 3, 16, 128, 128)
+
+    run_out = model.forward(images, video)
+
+    
+    """
     def __init__(
         self,
         *,
