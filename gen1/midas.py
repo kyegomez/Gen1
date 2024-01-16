@@ -1,9 +1,8 @@
 # or option2
 from PIL import Image
-import numpy as np
 import requests
 import torch
-from transformers import DPTForDepthPrediction, DPTConfig, DPTFeatureExtractor
+from transformers import DPTForDepthPrediction, DPTFeatureExtractor
 
 
 class MidasHF:

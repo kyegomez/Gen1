@@ -8,7 +8,7 @@ from einops import pack, rearrange, repeat, unpack
 from einops.layers.torch import Rearrange
 from torch import nn
 
-from gen1.attend import Attend
+from zeta.nn import Attend
 
 # helper functions
 
@@ -759,8 +759,8 @@ class Gen1(nn.Module):
         whether to use a learned positional bias for the attention
     flash_attn: bool
         whether to use flash attention
-    
-        
+
+
     Usage:
     ======
     import torch
@@ -774,8 +774,9 @@ class Gen1(nn.Module):
 
     run_out = model.forward(images, video)
 
-    
+
     """
+
     def __init__(
         self,
         *,
