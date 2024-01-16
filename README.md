@@ -2,7 +2,11 @@
 
 
 # Gen1
-My Implementation of " Structure and Content-Guided Video Synthesis with Diffusion Models" by RunwayML
+My Implementation of " Structure and Content-Guided Video Synthesis with Diffusion Models" by RunwayML. "Input videos x are encoded to z0 with a fixed encoder E and diffused to zt. We extract a
+structure representation s by encoding depth maps obtained with MiDaS, and a content representation c by encoding one of the frames
+with CLIP. The model then learns to reverse the diffusion process in the latent space, with the help of s, which gets concatenated to zt, as
+well as c, which is provided via cross-attention blocks. During inference (right), the structure s of an input video is provided in the same
+manner. To specify content via text, we convert CLIP text embeddings to image embeddings via a prior."
 
 
 
@@ -48,4 +52,3 @@ Eprint = {arXiv:2302.03011},
 # Todo
 - [ ] Add training script
 - [ ] Add in conditional text paramater to pass in text, not just images and or other videos
-- [ ] 
